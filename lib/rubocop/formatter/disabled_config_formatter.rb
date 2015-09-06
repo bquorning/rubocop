@@ -19,8 +19,6 @@ module RuboCop
       @config_to_allow_offenses = {}
       @detected_styles = {}
 
-      COPS = Cop::Cop.all.group_by(&:cop_name)
-
       class << self
         attr_accessor :config_to_allow_offenses, :detected_styles
       end
@@ -81,7 +79,7 @@ module RuboCop
 
       def output_cop_comments(output, cfg, cop_name, offense_count)
         output.puts "# Offense count: #{offense_count}" if @show_offense_counts
-        if COPS[cop_name] && COPS[cop_name].first.new.support_autocorrect?
+        if cops[cop_name] && cops[cop_name].first.new.support_autocorrect?
           output.puts '# Cop supports --auto-correct.'
         end
 
@@ -150,6 +148,12 @@ module RuboCop
       rescue LoadError
         # Fallback to Enabled: false for Ruby < 1.9.3
         output.puts '  Enabled: false'
+      end
+
+      private
+
+      def cops
+        @cops ||= Cop::Cop.all.group_by(&:cop_name)
       end
     end
   end
