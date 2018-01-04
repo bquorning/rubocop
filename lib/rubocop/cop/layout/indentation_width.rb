@@ -101,7 +101,7 @@ module RuboCop
 
           *_, body = *node.first_argument
 
-          def_end_config = config.for_cop('Lint/DefEndAlignment')
+          def_end_config = config.for_cop('Layout/DefEndAlignment')
           style = def_end_config['EnforcedStyleAlignWith'] || 'start_of_line'
           base = style == 'def' ? node.first_argument : node
 
@@ -187,7 +187,7 @@ module RuboCop
           rhs = first_part_of_call_chain(rhs)
           return unless rhs
 
-          end_config = config.for_cop('Lint/EndAlignment')
+          end_config = config.for_cop('Layout/EndAlignment')
           style = end_config['EnforcedStyleAlignWith'] || 'keyword'
           base = variable_alignment?(node.loc, rhs, style.to_sym) ? node : rhs
 

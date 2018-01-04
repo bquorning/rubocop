@@ -242,6 +242,86 @@ IndentationWidth | `<none>` | Integer
 
 * [https://github.com/bbatsov/ruby-style-guide#no-double-indent](https://github.com/bbatsov/ruby-style-guide#no-double-indent)
 
+## Layout/BlockAlignment
+
+Enabled by default | Supports autocorrection
+--- | ---
+Enabled | Yes
+
+This cop checks whether the end keywords are aligned properly for do
+end blocks.
+
+Three modes are supported through the `EnforcedStyleAlignWith`
+configuration parameter:
+
+`start_of_block` : the `end` shall be aligned with the
+start of the line where the `do` appeared.
+
+`start_of_line` : the `end` shall be aligned with the
+start of the line where the expression started.
+
+`either` (which is the default) : the `end` is allowed to be in either
+location. The autofixer will default to `start_of_line`.
+
+### Examples
+
+#### EnforcedStyleAlignWith: either (default)
+
+```ruby
+# bad
+
+foo.bar
+   .each do
+     baz
+       end
+
+# good
+
+variable = lambda do |i|
+  i
+end
+```
+#### EnforcedStyleAlignWith: start_of_block
+
+```ruby
+# bad
+
+foo.bar
+   .each do
+     baz
+       end
+
+# good
+
+foo.bar
+  .each do
+     baz
+   end
+```
+#### EnforcedStyleAlignWith: start_of_line
+
+```ruby
+# bad
+
+foo.bar
+   .each do
+     baz
+       end
+
+# good
+
+foo.bar
+  .each do
+     baz
+end
+```
+
+### Configurable attributes
+
+Name | Default value | Configurable values
+--- | --- | ---
+EnforcedStyleAlignWith | `either` | `either`, `start_of_block`, `start_of_line`
+
 ## Layout/BlockEndNewline
 
 Enabled by default | Supports autocorrection
@@ -552,6 +632,89 @@ if true
   true
 end
 ```
+
+## Layout/ConditionPosition
+
+Enabled by default | Supports autocorrection
+--- | ---
+Enabled | No
+
+This cop checks for conditions that are not on the same line as
+if/while/until.
+
+### Examples
+
+```ruby
+# bad
+
+if
+  some_condition
+  do_something
+end
+```
+```ruby
+# good
+
+if some_condition
+  do_something
+end
+```
+
+### References
+
+* [https://github.com/bbatsov/ruby-style-guide#same-line-condition](https://github.com/bbatsov/ruby-style-guide#same-line-condition)
+
+## Layout/DefEndAlignment
+
+Enabled by default | Supports autocorrection
+--- | ---
+Enabled | Yes
+
+This cop checks whether the end keywords of method definitions are
+aligned properly.
+
+Two modes are supported through the EnforcedStyleAlignWith configuration
+parameter. If it's set to `start_of_line` (which is the default), the
+`end` shall be aligned with the start of the line where the `def`
+keyword is. If it's set to `def`, the `end` shall be aligned with the
+`def` keyword.
+
+### Examples
+
+#### EnforcedStyleAlignWith: start_of_line (default)
+
+```ruby
+# bad
+
+private def foo
+            end
+
+# good
+
+private def foo
+end
+```
+#### EnforcedStyleAlignWith: def
+
+```ruby
+# bad
+
+private def foo
+            end
+
+# good
+
+private def foo
+        end
+```
+
+### Configurable attributes
+
+Name | Default value | Configurable values
+--- | --- | ---
+EnforcedStyleAlignWith | `start_of_line` | `start_of_line`, `def`
+AutoCorrect | `false` | Boolean
+Severity | `warning` | String
 
 ## Layout/DotPosition
 
@@ -1119,6 +1282,76 @@ EnforcedStyle | `no_empty_lines` | `empty_lines`, `empty_lines_except_namespace`
 ### References
 
 * [https://github.com/bbatsov/ruby-style-guide#empty-lines-around-bodies](https://github.com/bbatsov/ruby-style-guide#empty-lines-around-bodies)
+
+## Layout/EndAlignment
+
+Enabled by default | Supports autocorrection
+--- | ---
+Enabled | Yes
+
+This cop checks whether the end keywords are aligned properly.
+
+Three modes are supported through the `EnforcedStyleAlignWith`
+configuration parameter:
+
+If it's set to `keyword` (which is the default), the `end`
+shall be aligned with the start of the keyword (if, class, etc.).
+
+If it's set to `variable` the `end` shall be aligned with the
+left-hand-side of the variable assignment, if there is one.
+
+If it's set to `start_of_line`, the `end` shall be aligned with the
+start of the line where the matching keyword appears.
+
+### Examples
+
+#### EnforcedStyleAlignWith: keyword (default)
+
+```ruby
+# bad
+
+variable = if true
+    end
+
+# good
+
+variable = if true
+           end
+```
+#### EnforcedStyleAlignWith: variable
+
+```ruby
+# bad
+
+variable = if true
+    end
+
+# good
+
+variable = if true
+end
+```
+#### EnforcedStyleAlignWith: start_of_line
+
+```ruby
+# bad
+
+variable = if true
+    end
+
+# good
+
+puts(if true
+end)
+```
+
+### Configurable attributes
+
+Name | Default value | Configurable values
+--- | --- | ---
+EnforcedStyleAlignWith | `keyword` | `keyword`, `variable`, `start_of_line`
+AutoCorrect | `false` | Boolean
+Severity | `warning` | String
 
 ## Layout/EndOfLine
 
