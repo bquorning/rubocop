@@ -67,6 +67,7 @@ jobs:
     parameters:
       ruby-version:
         type: string
+
     docker:
       - image: circleci/<< parameters.ruby-version >>
     environment:
