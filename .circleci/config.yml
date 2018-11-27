@@ -280,15 +280,6 @@ workflows:
             - cc-setup
       - ruby-2.5-ascii_spec
       - ruby-2.5-rubocop
-      - ruby-head-spec:
-          requires:
-            - cc-setup
-      - ruby-head-spec-with-jit:
-          requires:
-            - cc-setup
-      - ruby-head-ascii_spec
-      - ruby-head-rubocop
-      - ruby-head-rubocop-with-jit
       - jruby-9.2-spec:
           requires:
             - cc-setup
@@ -302,3 +293,25 @@ workflows:
             - ruby-2.4-spec
             - ruby-2.5-spec
             - jruby-9.2-spec
+
+  # Our nightly Ruby image is current generated at 13:30.
+  # We run our tests against that image every day at 14:00.
+  daily:
+    jobs:
+      - cc-setup
+      - ruby-head-spec:
+          requires:
+            - cc-setup
+      - ruby-head-spec-with-jit:
+          requires:
+            - cc-setup
+      - ruby-head-ascii_spec
+      - ruby-head-rubocop
+      - ruby-head-rubocop-with-jit
+    triggers:
+      - schedule:
+          cron: "00 14 * * *"
+          filters:
+            branches:
+              only:
+                - master
