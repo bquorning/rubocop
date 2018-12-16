@@ -200,8 +200,9 @@ jobs:
     environment:
       <<: *common_env
       <<: *jruby_env
+      JRUBY_OPTS: "$JRUBY_OPTS foo bar"
     steps:
-      *rubocop_steps
+      - run: echo $JRUBY_OPTS
 
   # Job for downloading the Code Climate test reporter
   cc-setup:
@@ -258,8 +259,8 @@ workflows:
   version: 2
   build:
     jobs:
-      - documentation-checks
-      - cc-setup
+      # - documentation-checks
+      # - cc-setup
       # - ruby-2.2-spec:
       #     requires:
       #       - cc-setup
@@ -289,10 +290,10 @@ workflows:
       # - ruby-head-ascii_spec
       # - ruby-head-rubocop
       # - ruby-head-rubocop-with-jit
-      - jruby-9.2-spec:
-          requires:
-            - cc-setup
-      - jruby-9.2-ascii_spec
+      # - jruby-9.2-spec:
+      #     requires:
+      #       - cc-setup
+      # - jruby-9.2-ascii_spec
       - jruby-9.2-rubocop
 
       # - cc-upload-coverage:
