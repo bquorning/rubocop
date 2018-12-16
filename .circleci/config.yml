@@ -1,304 +1,121 @@
 version: 2
 
-jruby_env: &jruby_env
-  # By default we have 2 CPUs and 4GB ram available
-  # https://circleci.com/docs/2.0/configuration-reference/#resource_class
-  JRUBY_OPTS: "--debug -J-Xmn1024m -J-Xms2048m -J-Xmx2048m"
-
-common_env: &common_env
-  # CircleCI container has two cores, but Ruby can see 32 cores. So we
-  # configure test-queue.
-  # See https://github.com/tmm1/test-queue#environment-variables
-  TEST_QUEUE_WORKERS: 2
-
-spec_steps: &spec_steps
-  - checkout
-  - attach_workspace:
-      at: ~/project/tmp
-  - run: bundle install
-  - run:
-      name: Run specs
-      command: |
-        ./tmp/cc-test-reporter before-build
-        COVERAGE=true bundle exec rake spec
-        ./tmp/cc-test-reporter format-coverage --output tmp/codeclimate.$CIRCLE_JOB.json
-  - persist_to_workspace:
-      root: tmp
-      paths:
-        - codeclimate.*.json
-
-ascii_spec_steps: &ascii_spec_steps
-  - checkout
-  - run: bundle install
-  - run: bundle exec rake ascii_spec
-
-rubocop_steps: &rubocop_steps
-  - checkout
-  - run: bundle install
-  - run: bundle exec rake internal_investigation
-  - run:
-      name: Check requiring libraries successfully
-      # See https://github.com/rubocop-hq/rubocop/pull/4523#issuecomment-309136113
-      command: |
-        ruby -I lib -r rubocop -e 'exit 0'
-
 jobs:
 
-  # Ruby 2.2
-  ruby-2.2-spec:
-    docker:
-      - image: circleci/ruby:2.2
-    environment:
-      <<: *common_env
-    steps:
-      *spec_steps
-  ruby-2.2-ascii_spec:
-    docker:
-      - image: circleci/ruby:2.2
-    environment:
-      <<: *common_env
-    steps:
-      *ascii_spec_steps
-  ruby-2.2-rubocop:
-    docker:
-      - image: circleci/ruby:2.2
-    environment:
-      <<: *common_env
-    steps:
-      *rubocop_steps
-
-  # Ruby 2.3
-  ruby-2.3-spec:
-    docker:
-      - image: circleci/ruby:2.3
-    environment:
-      <<: *common_env
-    steps:
-      *spec_steps
-  ruby-2.3-ascii_spec:
-    docker:
-      - image: circleci/ruby:2.3
-    environment:
-      <<: *common_env
-    steps:
-      *ascii_spec_steps
-  ruby-2.3-rubocop:
-    docker:
-      - image: circleci/ruby:2.3
-    environment:
-      <<: *common_env
-    steps:
-      *rubocop_steps
-
-  # Ruby 2.4
-  ruby-2.4-spec:
-    docker:
-      - image: circleci/ruby:2.4
-    environment:
-      <<: *common_env
-    steps:
-      *spec_steps
-  ruby-2.4-ascii_spec:
-    docker:
-      - image: circleci/ruby:2.4
-    environment:
-      <<: *common_env
-    steps:
-      *ascii_spec_steps
-  ruby-2.4-rubocop:
-    docker:
-      - image: circleci/ruby:2.4
-    environment:
-      <<: *common_env
-    steps:
-      *rubocop_steps
-
-  # Ruby 2.5
-  ruby-2.5-spec:
-    docker:
-      - image: circleci/ruby:2.5
-    environment:
-      <<: *common_env
-    steps:
-      *spec_steps
-  ruby-2.5-ascii_spec:
-    docker:
-      - image: circleci/ruby:2.5
-    environment:
-      <<: *common_env
-    steps:
-      *ascii_spec_steps
-  ruby-2.5-rubocop:
-    docker:
-      - image: circleci/ruby:2.5
-    environment:
-      <<: *common_env
-    steps:
-      *rubocop_steps
-
-  # ruby-head (nightly snapshot build)
-  ruby-head-spec:
-    docker:
-      - image: rubocophq/circleci-ruby-snapshot:latest
-    environment:
-      <<: *common_env
-    steps:
-      *spec_steps
-  ruby-head-ascii_spec:
-    docker:
-      - image: rubocophq/circleci-ruby-snapshot:latest
-    environment:
-      <<: *common_env
-    steps:
-      *ascii_spec_steps
-  ruby-head-rubocop:
-    docker:
-      - image: rubocophq/circleci-ruby-snapshot:latest
-    environment:
-      <<: *common_env
-    steps:
-      *rubocop_steps
-
-  # With JIT compiler enabled!
-  ruby-head-spec-with-jit:
-    docker:
-      - image: rubocophq/circleci-ruby-snapshot:latest
-    environment:
-      RUBYOPT: '--jit'
-      <<: *common_env
-    steps:
-      *spec_steps
-  ruby-head-rubocop-with-jit:
-    docker:
-      - image: rubocophq/circleci-ruby-snapshot:latest
-    environment:
-      RUBYOPT: '--jit'
-      <<: *common_env
-    steps:
-      *rubocop_steps
-
-  # JRuby 9.2
-  jruby-9.2-spec:
+  none:
     docker:
       - image: circleci/jruby:9.2
     environment:
-      <<: *common_env
-      <<: *jruby_env
+      JRUBY_OPTS: "-J-Xmn1024m -J-Xms2048m -J-Xmx2048m"
+      TEST_QUEUE_WORKERS: 2
     steps:
-      *spec_steps
-  jruby-9.2-ascii_spec:
-    docker:
-      - image: circleci/jruby:9.2
-    environment:
-      <<: *common_env
-      <<: *jruby_env
-    steps:
-      *ascii_spec_steps
-  jruby-9.2-rubocop:
-    docker:
-      - image: circleci/jruby:9.2
-    environment:
-      <<: *common_env
-      <<: *jruby_env
-    steps:
-      *rubocop_steps
-
-  # Job for downloading the Code Climate test reporter
-  cc-setup:
-    docker:
-      - image: circleci/ruby:2.5
-    environment:
-      <<: *common_env
-    steps:
-      - run:
-          name: Download Code Climate test-reporter
-          command: |
-            mkdir -p tmp/
-            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./tmp/cc-test-reporter
-            chmod +x ./tmp/cc-test-reporter
-      - persist_to_workspace:
-          root: tmp
-          paths:
-            - cc-test-reporter
-
-  # Job for merging code coverage results and sending them to Code Climate
-  cc-upload-coverage:
-    docker:
-      - image: circleci/ruby:2.5
-        environment:
-          CC_TEST_REPORTER_ID: a11b66bfbb1acdf220d5cb317b2e945a986fd85adebe29a76d411ad6d74ec31f
-    environment:
-      <<: *common_env
-    steps:
-      - attach_workspace:
-          at: ~/project/tmp
-      - run:
-          name: Upload coverage results to Code Climate
-          command: |
-            ./tmp/cc-test-reporter sum-coverage tmp/codeclimate.*.json --parts 5 --output tmp/codeclimate.total.json
-            ./tmp/cc-test-reporter upload-coverage --input tmp/codeclimate.total.json
-
-  # Miscellaneous tasks
-  documentation-checks:
-    docker:
-      - image: circleci/ruby:2.5
-    environment:
-      <<: *common_env
-    steps:
+      - run: echo $JRUBY_OPTS
       - checkout
       - run: bundle install
-      - run:
-          name: Check documentation syntax
-          command: bundle exec rake documentation_syntax_check
-      - run:
-          name: Build documentation and check that manual files are in sync
-          command: bundle exec rake generate_cops_documentation
+      - run: bundle exec rake spec
+      - run: bundle exec rake ascii_spec
+      - run: bundle exec rake internal_investigation
+  dev:
+    docker:
+      - image: circleci/jruby:9.2
+    environment:
+      JRUBY_OPTS: "--dev -J-Xmn1024m -J-Xms2048m -J-Xmx2048m"
+      TEST_QUEUE_WORKERS: 2
+    steps:
+      - run: echo $JRUBY_OPTS
+      - checkout
+      - run: bundle install
+      - run: bundle exec rake spec
+      - run: bundle exec rake ascii_spec
+      - run: bundle exec rake internal_investigation
+  debug:
+    docker:
+      - image: circleci/jruby:9.2
+    environment:
+      JRUBY_OPTS: "--debug -J-Xmn1024m -J-Xms2048m -J-Xmx2048m"
+      TEST_QUEUE_WORKERS: 2
+    steps:
+      - run: echo $JRUBY_OPTS
+      - checkout
+      - run: bundle install
+      - run: bundle exec rake spec
+      - run: bundle exec rake ascii_spec
+      - run: bundle exec rake internal_investigation
+  dev_and_debug:
+    docker:
+      - image: circleci/jruby:9.2
+    environment:
+      JRUBY_OPTS: "--dev --debug -J-Xmn1024m -J-Xms2048m -J-Xmx2048m"
+      TEST_QUEUE_WORKERS: 2
+    steps:
+      - run: echo $JRUBY_OPTS
+      - checkout
+      - run: bundle install
+      - run: bundle exec rake spec
+      - run: bundle exec rake ascii_spec
+      - run: bundle exec rake internal_investigation
+  none_with_coverage:
+    docker:
+      - image: circleci/jruby:9.2
+    environment:
+      JRUBY_OPTS: "-J-Xmn1024m -J-Xms2048m -J-Xmx2048m"
+      TEST_QUEUE_WORKERS: 2
+    steps:
+      - run: echo $JRUBY_OPTS
+      - checkout
+      - run: bundle install
+      - run: COVERAGE=true bundle exec rake spec
+      - run: bundle exec rake ascii_spec
+      - run: bundle exec rake internal_investigation
+  dev_with_coverage:
+    docker:
+      - image: circleci/jruby:9.2
+    environment:
+      JRUBY_OPTS: "--dev -J-Xmn1024m -J-Xms2048m -J-Xmx2048m"
+      TEST_QUEUE_WORKERS: 2
+    steps:
+      - run: echo $JRUBY_OPTS
+      - checkout
+      - run: bundle install
+      - run: COVERAGE=true bundle exec rake spec
+      - run: bundle exec rake ascii_spec
+      - run: bundle exec rake internal_investigation
+  debug_with_coverage:
+    docker:
+      - image: circleci/jruby:9.2
+    environment:
+      JRUBY_OPTS: "--debug -J-Xmn1024m -J-Xms2048m -J-Xmx2048m"
+      TEST_QUEUE_WORKERS: 2
+    steps:
+      - run: echo $JRUBY_OPTS
+      - checkout
+      - run: bundle install
+      - run: COVERAGE=true bundle exec rake spec
+      - run: bundle exec rake ascii_spec
+      - run: bundle exec rake internal_investigation
+  dev_and_debug_with_coverage:
+    docker:
+      - image: circleci/jruby:9.2
+    environment:
+      JRUBY_OPTS: "--dev --debug -J-Xmn1024m -J-Xms2048m -J-Xmx2048m"
+      TEST_QUEUE_WORKERS: 2
+    steps:
+      - run: echo $JRUBY_OPTS
+      - checkout
+      - run: bundle install
+      - run: COVERAGE=true bundle exec rake spec
+      - run: bundle exec rake ascii_spec
+      - run: bundle exec rake internal_investigation
 
 workflows:
   version: 2
   build:
     jobs:
-      # - documentation-checks
-      # - cc-setup
-      # - ruby-2.2-spec:
-      #     requires:
-      #       - cc-setup
-      # - ruby-2.2-ascii_spec
-      # - ruby-2.2-rubocop
-      # - ruby-2.3-spec:
-      #     requires:
-      #       - cc-setup
-      # - ruby-2.3-ascii_spec
-      # - ruby-2.3-rubocop
-      # - ruby-2.4-spec:
-      #     requires:
-      #       - cc-setup
-      # - ruby-2.4-ascii_spec
-      # - ruby-2.4-rubocop
-      # - ruby-2.5-spec:
-      #     requires:
-      #       - cc-setup
-      # - ruby-2.5-ascii_spec
-      # - ruby-2.5-rubocop
-      # - ruby-head-spec:
-      #     requires:
-      #       - cc-setup
-      # - ruby-head-spec-with-jit:
-      #     requires:
-      #       - cc-setup
-      # - ruby-head-ascii_spec
-      # - ruby-head-rubocop
-      # - ruby-head-rubocop-with-jit
-      - jruby-9.2-spec:
-          requires:
-            - cc-setup
-      - jruby-9.2-ascii_spec
-      - jruby-9.2-rubocop
-
-      # - cc-upload-coverage:
-      #     requires:
-      #       - ruby-2.2-spec
-      #       - ruby-2.3-spec
-      #       - ruby-2.4-spec
-      #       - ruby-2.5-spec
-      #       - jruby-9.2-spec
+      - none
+      - dev
+      - debug
+      - dev_and_debug
+      - none_with_coverage
+      - dev_with_coverage
+      - debug_with_coverage
+      - dev_and_debug_with_coverage
