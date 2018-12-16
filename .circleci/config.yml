@@ -260,45 +260,45 @@ workflows:
     jobs:
       - documentation-checks
       - cc-setup
-      - ruby-2.2-spec:
-          requires:
-            - cc-setup
-      - ruby-2.2-ascii_spec
-      - ruby-2.2-rubocop
-      - ruby-2.3-spec:
-          requires:
-            - cc-setup
-      - ruby-2.3-ascii_spec
-      - ruby-2.3-rubocop
-      - ruby-2.4-spec:
-          requires:
-            - cc-setup
-      - ruby-2.4-ascii_spec
-      - ruby-2.4-rubocop
-      - ruby-2.5-spec:
-          requires:
-            - cc-setup
-      - ruby-2.5-ascii_spec
-      - ruby-2.5-rubocop
-      - ruby-head-spec:
-          requires:
-            - cc-setup
-      - ruby-head-spec-with-jit:
-          requires:
-            - cc-setup
-      - ruby-head-ascii_spec
-      - ruby-head-rubocop
-      - ruby-head-rubocop-with-jit
+      # - ruby-2.2-spec:
+      #     requires:
+      #       - cc-setup
+      # - ruby-2.2-ascii_spec
+      # - ruby-2.2-rubocop
+      # - ruby-2.3-spec:
+      #     requires:
+      #       - cc-setup
+      # - ruby-2.3-ascii_spec
+      # - ruby-2.3-rubocop
+      # - ruby-2.4-spec:
+      #     requires:
+      #       - cc-setup
+      # - ruby-2.4-ascii_spec
+      # - ruby-2.4-rubocop
+      # - ruby-2.5-spec:
+      #     requires:
+      #       - cc-setup
+      # - ruby-2.5-ascii_spec
+      # - ruby-2.5-rubocop
+      # - ruby-head-spec:
+      #     requires:
+      #       - cc-setup
+      # - ruby-head-spec-with-jit:
+      #     requires:
+      #       - cc-setup
+      # - ruby-head-ascii_spec
+      # - ruby-head-rubocop
+      # - ruby-head-rubocop-with-jit
       - jruby-9.2-spec:
           requires:
             - cc-setup
       - jruby-9.2-ascii_spec
       - jruby-9.2-rubocop
 
-      - cc-upload-coverage:
-          requires:
-            - ruby-2.2-spec
-            - ruby-2.3-spec
-            - ruby-2.4-spec
-            - ruby-2.5-spec
-            - jruby-9.2-spec
+      # - cc-upload-coverage:
+      #     requires:
+      #       - ruby-2.2-spec
+      #       - ruby-2.3-spec
+      #       - ruby-2.4-spec
+      #       - ruby-2.5-spec
+      #       - jruby-9.2-spec
