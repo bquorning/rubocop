@@ -283,51 +283,26 @@ workflows:
     jobs:
       - documentation-checks
       - cc-setup
+
+      - ruby-2.6-spec:
+          requires:
+            - cc-setup
       - ruby-2.2-spec:
           requires:
             - cc-setup
             - ruby-2.6-spec
-      - ruby-2.2-ascii_spec:
-          requires:
-            - ruby-2.6-ascii_spec
-      - ruby-2.2-rubocop:
-          requires:
-            - ruby-2.6-rubocop
       - ruby-2.3-spec:
           requires:
             - cc-setup
             - ruby-2.6-spec
-      - ruby-2.3-ascii_spec:
-          requires:
-            - ruby-2.6-ascii_spec
-      - ruby-2.3-rubocop:
-          requires:
-            - ruby-2.6-rubocop
       - ruby-2.4-spec:
           requires:
             - cc-setup
             - ruby-2.6-spec
-      - ruby-2.4-ascii_spec:
-          requires:
-            - ruby-2.6-ascii_spec
-      - ruby-2.4-rubocop:
-          requires:
-            - ruby-2.6-rubocop
       - ruby-2.5-spec:
           requires:
             - cc-setup
             - ruby-2.6-spec
-      - ruby-2.5-ascii_spec:
-          requires:
-            - ruby-2.6-ascii_spec
-      - ruby-2.5-rubocop:
-          requires:
-            - ruby-2.6-rubocop
-      - ruby-2.6-spec:
-          requires:
-            - cc-setup
-      - ruby-2.6-ascii_spec
-      - ruby-2.6-rubocop
       - ruby-head-spec:
           requires:
             - cc-setup
@@ -336,22 +311,50 @@ workflows:
           requires:
             - cc-setup
             - ruby-2.6-spec
+      - jruby-9.2-spec:
+          requires:
+            - cc-setup
+            - ruby-2.6-spec
+
+      - ruby-2.6-ascii_spec
+      - ruby-2.2-ascii_spec:
+          requires:
+            - ruby-2.6-ascii_spec
+      - ruby-2.3-ascii_spec:
+          requires:
+            - ruby-2.6-ascii_spec
+      - ruby-2.4-ascii_spec:
+          requires:
+            - ruby-2.6-ascii_spec
+      - ruby-2.5-ascii_spec:
+          requires:
+            - ruby-2.6-ascii_spec
       - ruby-head-ascii_spec:
           requires:
             - ruby-2.6-ascii_spec
+      - jruby-9.2-ascii_spec:
+          requires:
+            - ruby-2.6-ascii_spec
+
+      - ruby-2.6-rubocop
+      - ruby-2.2-rubocop:
+          requires:
+            - ruby-2.6-rubocop
+      - ruby-2.3-rubocop:
+          requires:
+            - ruby-2.6-rubocop
+      - ruby-2.4-rubocop:
+          requires:
+            - ruby-2.6-rubocop
+      - ruby-2.5-rubocop:
+          requires:
+            - ruby-2.6-rubocop
       - ruby-head-rubocop:
           requires:
             - ruby-2.6-rubocop
       - ruby-head-rubocop-with-jit:
           requires:
             - ruby-2.6-rubocop
-      - jruby-9.2-spec:
-          requires:
-            - cc-setup
-            - ruby-2.6-spec
-      - jruby-9.2-ascii_spec:
-          requires:
-            - ruby-2.6-ascii_spec
       - jruby-9.2-rubocop:
           requires:
             - ruby-2.6-rubocop
