@@ -14,12 +14,12 @@ common_env: &common_env
 spec_steps_no_coverage: &spec_steps_no_coverage
   - checkout
   - run: bundle install
-  - run: bundle exec rake spec
+  - run: bundle exec rspec
 
 spec_steps_with_coverage: &spec_steps_with_coverage
   - checkout
   - run: bundle install
-  - run: COVERAGE=true bundle exec rake spec
+  - run: COVERAGE=true bundle exec rspec
 
 jobs:
 
