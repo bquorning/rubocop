@@ -42,7 +42,7 @@ module RuboCop
               '.rubocop.yml) should be equal.'.freeze
 
         def_node_search :required_ruby_version, <<-PATTERN
-          (send _ :required_ruby_version= ${(str _) (array (str _))})
+          (send _ :required_ruby_version= ${(str _) (array (str _) (str _))})
         PATTERN
 
         def investigate(processed_source)
@@ -63,6 +63,7 @@ module RuboCop
 
         def extract_ruby_version(required_ruby_version)
           if required_ruby_version.array_type?
+            p required_ruby_version
             required_ruby_version = required_ruby_version.children.detect do |v|
               v.str_content =~ /[>=]/
             end

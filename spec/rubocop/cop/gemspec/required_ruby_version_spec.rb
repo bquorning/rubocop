@@ -26,7 +26,7 @@ RSpec.describe RuboCop::Cop::Gemspec::RequiredRubyVersion, :config do
       end
 
       it 'does not register an offense when `required_ruby_version` ' \
-         'is assigned as a variable (an array of string literal)' do
+         'is assigned as a variable (an array of string literal)', :focus do
         expect_no_offenses(<<-RUBY.strip_indent)
           Gem::Specification.new do |spec|
             lowest_version = '>= 2.3.0'
@@ -70,10 +70,10 @@ RSpec.describe RuboCop::Cop::Gemspec::RequiredRubyVersion, :config do
     end
 
     it 'does not register an offense when lowest version of ' \
-       '`required_ruby_version` equals `TargetRubyVersion`' do
+       '`required_ruby_version` equals `TargetRubyVersion`', :focus do
       expect_no_offenses(<<-RUBY.strip_indent)
         Gem::Specification.new do |spec|
-          spec.required_ruby_version = ['>= 2.3.0', '< 2.5.0']
+          spec.required_ruby_version = ['~> 2.3', '< 2.5.0']
         end
       RUBY
     end
