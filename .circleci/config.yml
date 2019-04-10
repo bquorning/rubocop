@@ -1,333 +1,416 @@
-version: 2
-
-jruby_env: &jruby_env
-  # By default we have 2 CPUs and 4GB ram available
-  # https://circleci.com/docs/2.0/configuration-reference/#resource_class
-  JRUBY_OPTS: "--debug -J-Xmn1024m -J-Xms2048m -J-Xmx2048m"
-
-common_env: &common_env
-  # CircleCI container has two cores, but Ruby can see 32 cores. So we
-  # configure test-queue.
-  # See https://github.com/tmm1/test-queue#environment-variables
-  TEST_QUEUE_WORKERS: 2
-
-spec_steps: &spec_steps
-  - checkout
-  - attach_workspace:
-      at: ~/project/tmp
-  - run: bundle install
-  - run:
-      name: Run specs
-      command: |
-        ./tmp/cc-test-reporter before-build
-        COVERAGE=true bundle exec rake spec
-        ./tmp/cc-test-reporter format-coverage --output tmp/codeclimate.$CIRCLE_JOB.json
-  - persist_to_workspace:
-      root: tmp
-      paths:
-        - codeclimate.*.json
-
-ascii_spec_steps: &ascii_spec_steps
-  - checkout
-  - run: bundle install
-  - run: bundle exec rake ascii_spec
-
-rubocop_steps: &rubocop_steps
-  - checkout
-  - run: bundle install
-  - run: bundle exec rake internal_investigation
-  - run:
-      name: Check requiring libraries successfully
-      # See https://github.com/rubocop-hq/rubocop/pull/4523#issuecomment-309136113
-      command: |
-        ruby -I lib -r rubocop -e 'exit 0'
+version: 2.1
 
 jobs:
-
-  # Ruby 2.2
-  ruby-2.2-spec:
+  bundle_on_2_2:
+    parameters:
+      x:
+        type: string
     docker:
       - image: circleci/ruby:2.2
-    environment:
-      <<: *common_env
-    steps:
-      *spec_steps
-  ruby-2.2-ascii_spec:
-    docker:
-      - image: circleci/ruby:2.2
-    environment:
-      <<: *common_env
-    steps:
-      *ascii_spec_steps
-  ruby-2.2-rubocop:
-    docker:
-      - image: circleci/ruby:2.2
-    environment:
-      <<: *common_env
-    steps:
-      *rubocop_steps
-
-  # Ruby 2.3
-  ruby-2.3-spec:
-    docker:
-      - image: circleci/ruby:2.3
-    environment:
-      <<: *common_env
-    steps:
-      *spec_steps
-  ruby-2.3-ascii_spec:
-    docker:
-      - image: circleci/ruby:2.3
-    environment:
-      <<: *common_env
-    steps:
-      *ascii_spec_steps
-  ruby-2.3-rubocop:
-    docker:
-      - image: circleci/ruby:2.3
-    environment:
-      <<: *common_env
-    steps:
-      *rubocop_steps
-
-  # Ruby 2.4
-  ruby-2.4-spec:
-    docker:
-      - image: circleci/ruby:2.4
-    environment:
-      <<: *common_env
-    steps:
-      *spec_steps
-  ruby-2.4-ascii_spec:
-    docker:
-      - image: circleci/ruby:2.4
-    environment:
-      <<: *common_env
-    steps:
-      *ascii_spec_steps
-  ruby-2.4-rubocop:
-    docker:
-      - image: circleci/ruby:2.4
-    environment:
-      <<: *common_env
-    steps:
-      *rubocop_steps
-
-  # Ruby 2.5
-  ruby-2.5-spec:
-    docker:
-      - image: circleci/ruby:2.5
-    environment:
-      <<: *common_env
-    steps:
-      *spec_steps
-  ruby-2.5-ascii_spec:
-    docker:
-      - image: circleci/ruby:2.5
-    environment:
-      <<: *common_env
-    steps:
-      *ascii_spec_steps
-  ruby-2.5-rubocop:
-    docker:
-      - image: circleci/ruby:2.5
-    environment:
-      <<: *common_env
-    steps:
-      *rubocop_steps
-
-  # Ruby 2.6
-  ruby-2.6-spec:
-    docker:
-      - image: circleci/ruby:2.6
-    environment:
-      <<: *common_env
-    steps:
-      *spec_steps
-  ruby-2.6-ascii_spec:
-    docker:
-      - image: circleci/ruby:2.6
-    environment:
-      <<: *common_env
-    steps:
-      *ascii_spec_steps
-  ruby-2.6-rubocop:
-    docker:
-      - image: circleci/ruby:2.6
-    environment:
-      <<: *common_env
-    steps:
-      *rubocop_steps
-
-  # ruby-head (nightly snapshot build)
-  ruby-head-spec:
-    docker:
-      - image: rubocophq/circleci-ruby-snapshot:latest
-    environment:
-      <<: *common_env
-    steps:
-      *spec_steps
-  ruby-head-ascii_spec:
-    docker:
-      - image: rubocophq/circleci-ruby-snapshot:latest
-    environment:
-      <<: *common_env
-    steps:
-      *ascii_spec_steps
-  ruby-head-rubocop:
-    docker:
-      - image: rubocophq/circleci-ruby-snapshot:latest
-    environment:
-      <<: *common_env
-    steps:
-      *rubocop_steps
-
-  # With JIT compiler enabled!
-  ruby-head-spec-with-jit:
-    docker:
-      - image: rubocophq/circleci-ruby-snapshot:latest
-    environment:
-      RUBYOPT: '--jit'
-      <<: *common_env
-    steps:
-      *spec_steps
-  ruby-head-rubocop-with-jit:
-    docker:
-      - image: rubocophq/circleci-ruby-snapshot:latest
-    environment:
-      RUBYOPT: '--jit'
-      <<: *common_env
-    steps:
-      *rubocop_steps
-
-  # JRuby 9.2
-  jruby-9.2-spec:
-    docker:
-      - image: circleci/jruby:9.2
-    environment:
-      <<: *common_env
-      <<: *jruby_env
-    steps:
-      *spec_steps
-  jruby-9.2-ascii_spec:
-    docker:
-      - image: circleci/jruby:9.2
-    environment:
-      <<: *common_env
-      <<: *jruby_env
-    steps:
-      *ascii_spec_steps
-  jruby-9.2-rubocop:
-    docker:
-      - image: circleci/jruby:9.2
-    environment:
-      <<: *common_env
-      <<: *jruby_env
-    steps:
-      *rubocop_steps
-
-  # Job for downloading the Code Climate test reporter
-  cc-setup:
-    docker:
-      - image: circleci/ruby
-    environment:
-      <<: *common_env
-    steps:
-      - run:
-          name: Download Code Climate test-reporter
-          command: |
-            mkdir -p tmp/
-            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./tmp/cc-test-reporter
-            chmod +x ./tmp/cc-test-reporter
-      - persist_to_workspace:
-          root: tmp
-          paths:
-            - cc-test-reporter
-
-  # Job for merging code coverage results and sending them to Code Climate
-  cc-upload-coverage:
-    docker:
-      - image: circleci/ruby
-        environment:
-          CC_TEST_REPORTER_ID: a11b66bfbb1acdf220d5cb317b2e945a986fd85adebe29a76d411ad6d74ec31f
-    environment:
-      <<: *common_env
-    steps:
-      - attach_workspace:
-          at: ~/project/tmp
-      - run:
-          name: Upload coverage results to Code Climate
-          command: |
-            ./tmp/cc-test-reporter sum-coverage tmp/codeclimate.*.json --parts 6 --output tmp/codeclimate.total.json
-            ./tmp/cc-test-reporter upload-coverage --input tmp/codeclimate.total.json
-
-  # Miscellaneous tasks
-  documentation-checks:
-    docker:
-      - image: circleci/ruby
-    environment:
-      <<: *common_env
     steps:
       - checkout
-      - run: bundle install
-      - run:
-          name: Check documentation syntax
-          command: bundle exec rake documentation_syntax_check
-      - run:
-          name: Build documentation and check that manual files are in sync
-          command: bundle exec rake generate_cops_documentation
+      - run: bundle install --verbose
 
 workflows:
-  version: 2
   build:
     jobs:
-      - documentation-checks
-      - cc-setup
-      - ruby-2.2-spec:
-          requires:
-            - cc-setup
-      - ruby-2.2-ascii_spec
-      - ruby-2.2-rubocop
-      - ruby-2.3-spec:
-          requires:
-            - cc-setup
-      - ruby-2.3-ascii_spec
-      - ruby-2.3-rubocop
-      - ruby-2.4-spec:
-          requires:
-            - cc-setup
-      - ruby-2.4-ascii_spec
-      - ruby-2.4-rubocop
-      - ruby-2.5-spec:
-          requires:
-            - cc-setup
-      - ruby-2.5-ascii_spec
-      - ruby-2.5-rubocop
-      - ruby-2.6-spec:
-          requires:
-            - cc-setup
-      - ruby-2.6-ascii_spec
-      - ruby-2.6-rubocop
-      - ruby-head-spec:
-          requires:
-            - cc-setup
-      - ruby-head-spec-with-jit:
-          requires:
-            - cc-setup
-      - ruby-head-ascii_spec
-      - ruby-head-rubocop
-      - ruby-head-rubocop-with-jit
-      - jruby-9.2-spec:
-          requires:
-            - cc-setup
-      - jruby-9.2-ascii_spec
-      - jruby-9.2-rubocop
-
-      - cc-upload-coverage:
-          requires:
-            - ruby-2.2-spec
-            - ruby-2.3-spec
-            - ruby-2.4-spec
-            - ruby-2.5-spec
-            - ruby-2.6-spec
-            - jruby-9.2-spec
+      - bundle_on_2_2:
+          x: "00"
+      - bundle_on_2_2:
+          x: "01"
+      - bundle_on_2_2:
+          x: "02"
+      - bundle_on_2_2:
+          x: "03"
+      - bundle_on_2_2:
+          x: "04"
+      - bundle_on_2_2:
+          x: "05"
+      - bundle_on_2_2:
+          x: "06"
+      - bundle_on_2_2:
+          x: "07"
+      - bundle_on_2_2:
+          x: "08"
+      - bundle_on_2_2:
+          x: "09"
+      - bundle_on_2_2:
+          x: "10"
+      - bundle_on_2_2:
+          x: "11"
+      - bundle_on_2_2:
+          x: "12"
+      - bundle_on_2_2:
+          x: "13"
+      - bundle_on_2_2:
+          x: "14"
+      - bundle_on_2_2:
+          x: "15"
+      - bundle_on_2_2:
+          x: "16"
+      - bundle_on_2_2:
+          x: "17"
+      - bundle_on_2_2:
+          x: "18"
+      - bundle_on_2_2:
+          x: "19"
+      - bundle_on_2_2:
+          x: "20"
+      - bundle_on_2_2:
+          x: "21"
+      - bundle_on_2_2:
+          x: "22"
+      - bundle_on_2_2:
+          x: "23"
+      - bundle_on_2_2:
+          x: "24"
+      - bundle_on_2_2:
+          x: "25"
+      - bundle_on_2_2:
+          x: "26"
+      - bundle_on_2_2:
+          x: "27"
+      - bundle_on_2_2:
+          x: "28"
+      - bundle_on_2_2:
+          x: "29"
+      - bundle_on_2_2:
+          x: "30"
+      - bundle_on_2_2:
+          x: "31"
+      - bundle_on_2_2:
+          x: "32"
+      - bundle_on_2_2:
+          x: "33"
+      - bundle_on_2_2:
+          x: "34"
+      - bundle_on_2_2:
+          x: "35"
+      - bundle_on_2_2:
+          x: "36"
+      - bundle_on_2_2:
+          x: "37"
+      - bundle_on_2_2:
+          x: "38"
+      - bundle_on_2_2:
+          x: "39"
+      - bundle_on_2_2:
+          x: "40"
+      - bundle_on_2_2:
+          x: "41"
+      - bundle_on_2_2:
+          x: "42"
+      - bundle_on_2_2:
+          x: "43"
+      - bundle_on_2_2:
+          x: "44"
+      - bundle_on_2_2:
+          x: "45"
+      - bundle_on_2_2:
+          x: "46"
+      - bundle_on_2_2:
+          x: "47"
+      - bundle_on_2_2:
+          x: "48"
+      - bundle_on_2_2:
+          x: "49"
+      - bundle_on_2_2:
+          x: "50"
+      - bundle_on_2_2:
+          x: "51"
+      - bundle_on_2_2:
+          x: "52"
+      - bundle_on_2_2:
+          x: "53"
+      - bundle_on_2_2:
+          x: "54"
+      - bundle_on_2_2:
+          x: "55"
+      - bundle_on_2_2:
+          x: "56"
+      - bundle_on_2_2:
+          x: "57"
+      - bundle_on_2_2:
+          x: "58"
+      - bundle_on_2_2:
+          x: "59"
+      - bundle_on_2_2:
+          x: "60"
+      - bundle_on_2_2:
+          x: "61"
+      - bundle_on_2_2:
+          x: "62"
+      - bundle_on_2_2:
+          x: "63"
+      - bundle_on_2_2:
+          x: "64"
+      - bundle_on_2_2:
+          x: "65"
+      - bundle_on_2_2:
+          x: "66"
+      - bundle_on_2_2:
+          x: "67"
+      - bundle_on_2_2:
+          x: "68"
+      - bundle_on_2_2:
+          x: "69"
+      - bundle_on_2_2:
+          x: "70"
+      - bundle_on_2_2:
+          x: "71"
+      - bundle_on_2_2:
+          x: "72"
+      - bundle_on_2_2:
+          x: "73"
+      - bundle_on_2_2:
+          x: "74"
+      - bundle_on_2_2:
+          x: "75"
+      - bundle_on_2_2:
+          x: "76"
+      - bundle_on_2_2:
+          x: "77"
+      - bundle_on_2_2:
+          x: "78"
+      - bundle_on_2_2:
+          x: "79"
+      - bundle_on_2_2:
+          x: "80"
+      - bundle_on_2_2:
+          x: "81"
+      - bundle_on_2_2:
+          x: "82"
+      - bundle_on_2_2:
+          x: "83"
+      - bundle_on_2_2:
+          x: "84"
+      - bundle_on_2_2:
+          x: "85"
+      - bundle_on_2_2:
+          x: "86"
+      - bundle_on_2_2:
+          x: "87"
+      - bundle_on_2_2:
+          x: "88"
+      - bundle_on_2_2:
+          x: "89"
+      - bundle_on_2_2:
+          x: "90"
+      - bundle_on_2_2:
+          x: "91"
+      - bundle_on_2_2:
+          x: "92"
+      - bundle_on_2_2:
+          x: "93"
+      - bundle_on_2_2:
+          x: "94"
+      - bundle_on_2_2:
+          x: "95"
+      - bundle_on_2_2:
+          x: "96"
+      - bundle_on_2_2:
+          x: "97"
+      - bundle_on_2_2:
+          x: "98"
+      - bundle_on_2_2:
+          x: "99"
+      - bundle_on_2_2:
+          x: "100"
+      - bundle_on_2_2:
+          x: "101"
+      - bundle_on_2_2:
+          x: "102"
+      - bundle_on_2_2:
+          x: "103"
+      - bundle_on_2_2:
+          x: "104"
+      - bundle_on_2_2:
+          x: "105"
+      - bundle_on_2_2:
+          x: "106"
+      - bundle_on_2_2:
+          x: "107"
+      - bundle_on_2_2:
+          x: "108"
+      - bundle_on_2_2:
+          x: "109"
+      - bundle_on_2_2:
+          x: "110"
+      - bundle_on_2_2:
+          x: "111"
+      - bundle_on_2_2:
+          x: "112"
+      - bundle_on_2_2:
+          x: "113"
+      - bundle_on_2_2:
+          x: "114"
+      - bundle_on_2_2:
+          x: "115"
+      - bundle_on_2_2:
+          x: "116"
+      - bundle_on_2_2:
+          x: "117"
+      - bundle_on_2_2:
+          x: "118"
+      - bundle_on_2_2:
+          x: "119"
+      - bundle_on_2_2:
+          x: "120"
+      - bundle_on_2_2:
+          x: "121"
+      - bundle_on_2_2:
+          x: "122"
+      - bundle_on_2_2:
+          x: "123"
+      - bundle_on_2_2:
+          x: "124"
+      - bundle_on_2_2:
+          x: "125"
+      - bundle_on_2_2:
+          x: "126"
+      - bundle_on_2_2:
+          x: "127"
+      - bundle_on_2_2:
+          x: "128"
+      - bundle_on_2_2:
+          x: "129"
+      - bundle_on_2_2:
+          x: "130"
+      - bundle_on_2_2:
+          x: "131"
+      - bundle_on_2_2:
+          x: "132"
+      - bundle_on_2_2:
+          x: "133"
+      - bundle_on_2_2:
+          x: "134"
+      - bundle_on_2_2:
+          x: "135"
+      - bundle_on_2_2:
+          x: "136"
+      - bundle_on_2_2:
+          x: "137"
+      - bundle_on_2_2:
+          x: "138"
+      - bundle_on_2_2:
+          x: "139"
+      - bundle_on_2_2:
+          x: "140"
+      - bundle_on_2_2:
+          x: "141"
+      - bundle_on_2_2:
+          x: "142"
+      - bundle_on_2_2:
+          x: "143"
+      - bundle_on_2_2:
+          x: "144"
+      - bundle_on_2_2:
+          x: "145"
+      - bundle_on_2_2:
+          x: "146"
+      - bundle_on_2_2:
+          x: "147"
+      - bundle_on_2_2:
+          x: "148"
+      - bundle_on_2_2:
+          x: "149"
+      - bundle_on_2_2:
+          x: "150"
+      - bundle_on_2_2:
+          x: "151"
+      - bundle_on_2_2:
+          x: "152"
+      - bundle_on_2_2:
+          x: "153"
+      - bundle_on_2_2:
+          x: "154"
+      - bundle_on_2_2:
+          x: "155"
+      - bundle_on_2_2:
+          x: "156"
+      - bundle_on_2_2:
+          x: "157"
+      - bundle_on_2_2:
+          x: "158"
+      - bundle_on_2_2:
+          x: "159"
+      - bundle_on_2_2:
+          x: "160"
+      - bundle_on_2_2:
+          x: "161"
+      - bundle_on_2_2:
+          x: "162"
+      - bundle_on_2_2:
+          x: "163"
+      - bundle_on_2_2:
+          x: "164"
+      - bundle_on_2_2:
+          x: "165"
+      - bundle_on_2_2:
+          x: "166"
+      - bundle_on_2_2:
+          x: "167"
+      - bundle_on_2_2:
+          x: "168"
+      - bundle_on_2_2:
+          x: "169"
+      - bundle_on_2_2:
+          x: "170"
+      - bundle_on_2_2:
+          x: "171"
+      - bundle_on_2_2:
+          x: "172"
+      - bundle_on_2_2:
+          x: "173"
+      - bundle_on_2_2:
+          x: "174"
+      - bundle_on_2_2:
+          x: "175"
+      - bundle_on_2_2:
+          x: "176"
+      - bundle_on_2_2:
+          x: "177"
+      - bundle_on_2_2:
+          x: "178"
+      - bundle_on_2_2:
+          x: "179"
+      - bundle_on_2_2:
+          x: "180"
+      - bundle_on_2_2:
+          x: "181"
+      - bundle_on_2_2:
+          x: "182"
+      - bundle_on_2_2:
+          x: "183"
+      - bundle_on_2_2:
+          x: "184"
+      - bundle_on_2_2:
+          x: "185"
+      - bundle_on_2_2:
+          x: "186"
+      - bundle_on_2_2:
+          x: "187"
+      - bundle_on_2_2:
+          x: "188"
+      - bundle_on_2_2:
+          x: "189"
+      - bundle_on_2_2:
+          x: "190"
+      - bundle_on_2_2:
+          x: "191"
+      - bundle_on_2_2:
+          x: "192"
+      - bundle_on_2_2:
+          x: "193"
+      - bundle_on_2_2:
+          x: "194"
+      - bundle_on_2_2:
+          x: "195"
+      - bundle_on_2_2:
+          x: "196"
+      - bundle_on_2_2:
+          x: "197"
+      - bundle_on_2_2:
+          x: "198"
+      - bundle_on_2_2:
+          x: "199"
