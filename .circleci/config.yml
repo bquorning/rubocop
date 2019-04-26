@@ -259,47 +259,98 @@ jobs:
           name: Build documentation and check that manual files are in sync
           command: bundle exec rake generate_cops_documentation
 
+  # Noop job
+  run-all-on-latest-ruby:
+    docker:
+      - image: circleci/ruby
+    steps:
+      - run: 'true'
+
 workflows:
   version: 2
   build:
     jobs:
       - documentation-checks
       - cc-setup
+
+      # Don't run *all* tests before we know they pass on the latest Ruby version.
+      - run-all-on-latest-ruby:
+          requires:
+            - documentation-checks
+            - ruby-2.6-spec
+            - ruby-2.6-ascii_spec
+            - ruby-2.6-rubocop
+
       - ruby-2.2-spec:
           requires:
             - cc-setup
-      - ruby-2.2-ascii_spec
-      - ruby-2.2-rubocop
+            - run-all-on-latest-ruby
+      - ruby-2.2-ascii_spec:
+          requires:
+            - run-all-on-latest-ruby
+      - ruby-2.2-rubocop:
+          requires:
+            - run-all-on-latest-ruby
+
       - ruby-2.3-spec:
           requires:
             - cc-setup
-      - ruby-2.3-ascii_spec
-      - ruby-2.3-rubocop
+            - run-all-on-latest-ruby
+      - ruby-2.3-ascii_spec:
+          requires:
+            - run-all-on-latest-ruby
+      - ruby-2.3-rubocop:
+          requires:
+            - run-all-on-latest-ruby
+
       - ruby-2.4-spec:
           requires:
             - cc-setup
-      - ruby-2.4-ascii_spec
-      - ruby-2.4-rubocop
+            - run-all-on-latest-ruby
+      - ruby-2.4-ascii_spec:
+          requires:
+            - run-all-on-latest-ruby
+      - ruby-2.4-rubocop:
+          requires:
+            - run-all-on-latest-ruby
+
       - ruby-2.5-spec:
           requires:
             - cc-setup
-      - ruby-2.5-ascii_spec
-      - ruby-2.5-rubocop
+            - run-all-on-latest-ruby
+      - ruby-2.5-ascii_spec:
+          requires:
+            - run-all-on-latest-ruby
+      - ruby-2.5-rubocop:
+          requires:
+            - run-all-on-latest-ruby
       - ruby-2.6-spec:
           requires:
             - cc-setup
       - ruby-2.6-ascii_spec
       - ruby-2.6-rubocop
+
       - ruby-head-spec:
           requires:
             - cc-setup
-      - ruby-head-ascii_spec
-      - ruby-head-rubocop
+            - run-all-on-latest-ruby
+      - ruby-head-ascii_spec:
+          requires:
+            - run-all-on-latest-ruby
+      - ruby-head-rubocop:
+          requires:
+            - run-all-on-latest-ruby
+
       - jruby-9.2-spec:
           requires:
             - cc-setup
-      - jruby-9.2-ascii_spec
-      - jruby-9.2-rubocop
+            - run-all-on-latest-ruby
+      - jruby-9.2-ascii_spec:
+          requires:
+            - run-all-on-latest-ruby
+      - jruby-9.2-rubocop:
+          requires:
+            - run-all-on-latest-ruby
 
       - cc-upload-coverage:
           requires:
