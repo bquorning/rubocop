@@ -32,19 +32,6 @@ RSpec.describe RuboCop::Cop::Layout::IndentHeredoc, :config do
     end
   end
 
-  shared_examples 'warning' do |message|
-    it 'warns' do
-      correct = lambda do
-        autocorrect_source(<<-RUBY.strip_indent)
-          <<-RUBY2
-          foo
-          RUBY2
-        RUBY
-      end
-      expect(&correct).to raise_error(RuboCop::Warning, message)
-    end
-  end
-
   shared_examples 'all heredoc type' do |quote|
     context "quoted by #{quote}" do
       context 'EnforcedStyle is `powerpack`' do
