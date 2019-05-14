@@ -62,128 +62,131 @@ RSpec.describe RuboCop::Cop::Layout::IndentHeredoc, :config do
 
   shared_examples 'all heredoc type' do |quote|
     context "quoted by #{quote}" do
-      let(:cop_config) do
-        { 'EnforcedStyle' => :powerpack }
-      end
+      context 'EnforcedStyle is `powerpack`' do
+        let(:cop_config) do
+          { 'EnforcedStyle' => :powerpack }
+        end
 
-      include_examples 'offense', 'not indented', <<-RUBY, <<-CORRECTION
-        <<#{quote}RUBY2#{quote}
-        \#{foo}
-        bar
-        RUBY2
-      RUBY
-        <<#{quote}RUBY2#{quote}.strip_indent
+        include_examples 'offense', 'not indented', <<-RUBY, <<-CORRECTION
+          <<#{quote}RUBY2#{quote}
           \#{foo}
           bar
-        RUBY2
-      CORRECTION
-      include_examples 'offense', 'minus level indented', <<-RUBY, <<-CORRECTION
-        def foo
-          <<#{quote}RUBY2#{quote}
-        \#{foo}
-        bar
-        RUBY2
-        end
-      RUBY
-        def foo
+          RUBY2
+        RUBY
           <<#{quote}RUBY2#{quote}.strip_indent
             \#{foo}
             bar
-        RUBY2
-        end
-      CORRECTION
-      include_examples 'offense', 'not indented, with `-`',
-                       <<-RUBY, <<-CORRECTION
-        <<-#{quote}RUBY2#{quote}
-        \#{foo}
-        bar
-        RUBY2
-      RUBY
-        <<-#{quote}RUBY2#{quote}.strip_indent
+          RUBY2
+        CORRECTION
+        include_examples 'offense', 'minus level indented',
+                         <<-RUBY, <<-CORRECTION
+          def foo
+            <<#{quote}RUBY2#{quote}
           \#{foo}
           bar
-        RUBY2
-      CORRECTION
-      include_examples 'offense', 'minus level indented, with `-`',
-                       <<-RUBY, <<-CORRECTION
-        def foo
-          <<-#{quote}RUBY2#{quote}
-        \#{foo}
-        bar
           RUBY2
-        end
-      RUBY
-        def foo
+          end
+        RUBY
+          def foo
+            <<#{quote}RUBY2#{quote}.strip_indent
+              \#{foo}
+              bar
+          RUBY2
+          end
+        CORRECTION
+        include_examples 'offense', 'not indented, with `-`',
+                         <<-RUBY, <<-CORRECTION
+          <<-#{quote}RUBY2#{quote}
+          \#{foo}
+          bar
+          RUBY2
+        RUBY
           <<-#{quote}RUBY2#{quote}.strip_indent
             \#{foo}
             bar
           RUBY2
-        end
-      CORRECTION
-
-      it 'does not register an offense when not indented but with ' \
-         'whitespace, with `-`' do
-        expect_no_offenses(<<-RUBY)
+        CORRECTION
+        include_examples 'offense', 'minus level indented, with `-`',
+                         <<-RUBY, <<-CORRECTION
           def foo
             <<-#{quote}RUBY2#{quote}
-            something
+          \#{foo}
+          bar
             RUBY2
           end
         RUBY
-      end
-
-      include_examples 'accept', 'indented, but with `-`', <<-RUBY
-        def foo
-          <<-#{quote}RUBY2#{quote}
-            something
-          RUBY2
-        end
-      RUBY
-      include_examples 'accept', 'not indented but with whitespace', <<-RUBY
-        def foo
-          <<#{quote}RUBY2#{quote}
-          something
-        RUBY2
-        end
-      RUBY
-      include_examples 'accept', 'indented, but without `~`', <<-RUBY
-        def foo
-          <<#{quote}RUBY2#{quote}
-            something
-        RUBY2
-        end
-      RUBY
-      include_examples 'accept', 'an empty line', <<-RUBY
-        <<-#{quote}RUBY2#{quote}
-
-        RUBY2
-      RUBY
-
-      context 'when Metrics/LineLength is configured' do
-        let(:allow_heredoc) { false }
-
-        include_examples 'offense', 'short heredoc', <<-RUBY, <<-CORRECTION
-          <<#{quote}RUBY2#{quote}
-          12
-          RUBY2
-        RUBY
-          <<#{quote}RUBY2#{quote}.strip_indent
-            12
-          RUBY2
+          def foo
+            <<-#{quote}RUBY2#{quote}.strip_indent
+              \#{foo}
+              bar
+            RUBY2
+          end
         CORRECTION
 
-        include_examples 'accept', 'long heredoc', <<-RUBY
-          <<#{quote}RUBY2#{quote}
-          12345678
+        it 'does not register an offense when not indented but with ' \
+           'whitespace, with `-`' do
+          expect_no_offenses(<<-RUBY)
+            def foo
+              <<-#{quote}RUBY2#{quote}
+              something
+              RUBY2
+            end
+          RUBY
+        end
+
+        include_examples 'accept', 'indented, but with `-`', <<-RUBY
+          def foo
+            <<-#{quote}RUBY2#{quote}
+              something
+            RUBY2
+          end
+        RUBY
+        include_examples 'accept', 'not indented but with whitespace', <<-RUBY
+          def foo
+            <<#{quote}RUBY2#{quote}
+            something
+          RUBY2
+          end
+        RUBY
+        include_examples 'accept', 'indented, but without `~`', <<-RUBY
+          def foo
+            <<#{quote}RUBY2#{quote}
+              something
+          RUBY2
+          end
+        RUBY
+        include_examples 'accept', 'an empty line', <<-RUBY
+          <<-#{quote}RUBY2#{quote}
+
           RUBY2
         RUBY
-      end
 
-      include_examples 'check message', 'suggestion powerpack',
-                       [
-                         'Use 2 spaces for indentation in a heredoc by using ' \
-                         '`String#strip_indent`.'
-                       ]
+        context 'when Metrics/LineLength is configured' do
+          let(:allow_heredoc) { false }
+
+          include_examples 'offense', 'short heredoc', <<-RUBY, <<-CORRECTION
+            <<#{quote}RUBY2#{quote}
+            12
+            RUBY2
+          RUBY
+            <<#{quote}RUBY2#{quote}.strip_indent
+              12
+            RUBY2
+          CORRECTION
+
+          include_examples 'accept', 'long heredoc', <<-RUBY
+            <<#{quote}RUBY2#{quote}
+            12345678
+            RUBY2
+          RUBY
+        end
+
+        include_examples 'check message', 'suggestion powerpack',
+                         [
+                           'Use 2 spaces for indentation in a heredoc by ' \
+                           'using `String#strip_indent`.'
+                         ]
+      end
 
       context 'EnforcedStyle is `squiggly`' do
         let(:cop_config) do
