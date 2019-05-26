@@ -6,6 +6,7 @@
 
 * [#7066](https://github.com/rubocop-hq/rubocop/issues/7066): Fix `Layout/AlignHash` when mixed Hash styles are used. ([@rmm5t][])
 * [#7073](https://github.com/rubocop-hq/rubocop/issues/7073): Fix false positive in `Naming/RescuedExceptionsVariableName` cop. ([@tejasbubane][])
+* [#7085](https://github.com/rubocop-hq/rubocop/issues/7085): Fix false positive in `Layout/IndentHeredoc` cop. ([@bquorning][])
 
 ### Changes
 

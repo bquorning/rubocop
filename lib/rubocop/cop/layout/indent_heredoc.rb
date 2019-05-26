@@ -222,7 +222,13 @@ module RuboCop
         end
 
         def base_indent_level(node)
-          base_line_num = node.loc.expression.line
+          if node.parent && node.parent.send_type?
+            base_node = node.parent
+          else
+            base_node = node
+          end
+
+          base_line_num = base_node.loc.expression.line
           base_line = processed_source.lines[base_line_num - 1]
           indent_level(base_line)
         end

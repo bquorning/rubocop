@@ -274,6 +274,18 @@ RSpec.describe RuboCop::Cop::Layout::IndentHeredoc, :config do
           MSG
         RUBY
 
+        %w[<< <<- <<~].each do |type|
+          it "accepts two space indentation on #{type} heredoc given on 2nd " \
+             "line of method call arguments" do
+            expect_no_offenses(<<~RUBY)
+              this_in_ok(:very_long_line,
+                         :must_break, #{type}#{quote}RUBY2#{quote})
+                foo
+              RUBY2
+            RUBY
+          end
+        end
+
         it 'displays message to use `<<~` instead of `<<`' do
           expect_offense(<<~RUBY)
             <<RUBY2
