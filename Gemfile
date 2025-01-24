@@ -19,7 +19,7 @@ gem 'rubocop-rspec', '~> 3.4.0'
 gem 'ruby-lsp', '~> 0.23', platform: :mri if RUBY_VERSION >= '3.0'
 gem 'simplecov', '~> 0.20'
 gem 'stackprof', platform: :mri
-gem 'test-queue'
+gem 'parallel_tests'
 gem 'yard', '~> 0.9'
 
 group :test do
