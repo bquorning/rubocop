@@ -2,7 +2,7 @@
 
 require 'open3'
 
-RSpec.describe 'RuboCop::CLI options', :isolated_environment do # rubocop:disable RSpec/DescribeClass
+RSpec.describe 'RuboCop::CLI options', :slow, :isolated_environment do # rubocop:disable RSpec/DescribeClass
   subject(:cli) { RuboCop::CLI.new }
 
   include_context 'cli spec behavior'
