@@ -20,7 +20,6 @@ vendor/
 
 # rspec
 /spec/examples.txt
-/.test_queue_stats
 
 # RuboCop
 .rubocop

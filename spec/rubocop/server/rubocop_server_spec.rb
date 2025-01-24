@@ -2,7 +2,7 @@
 
 require 'open3'
 
-RSpec.describe 'rubocop --server', :isolated_environment do # rubocop:disable RSpec/DescribeClass
+RSpec.describe 'rubocop --server', :slow, :isolated_environment do # rubocop:disable RSpec/DescribeClass
   let(:rubocop) { "#{RuboCop::ConfigLoader::RUBOCOP_HOME}/exe/rubocop" }
 
   include_context 'cli spec behavior'
